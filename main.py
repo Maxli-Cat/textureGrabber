@@ -12,8 +12,8 @@ pygame.init()
 pygame.font.init()
 font = pygame.font.SysFont("Arial", 30)
 small = pygame.font.SysFont("Courier New", 15)
-FLAGS = pygame.HWSURFACE|pygame.DOUBLEBUF
-SIZE = WIDTH, LENGTH = (900, 600)
+FLAGS = pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE
+SIZE = WIDTH, HEIGHT = (900, 600)
 
 screen = pygame.display.set_mode(SIZE, FLAGS)
 
@@ -25,7 +25,11 @@ if __name__ == '__main__':
     file_path = filedialog.askopenfilename()
 
     while True:
+        pygame.display.flip()
         for event in pygame.event.get():
             if event.type == pygame.locals.QUIT:
                 pygame.quit()
                 exit()
+            if event.type == pygame.locals.VIDEORESIZE:
+                SIZE = WIDTH, HEIGHT = event.w, event.h
+                screen.fill(white)
