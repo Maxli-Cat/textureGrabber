@@ -35,8 +35,11 @@ def shift(image, points):
     pass
 
 def scale_points(points, old_size, new_size):
-    pass
+    x_scale = old_size[0] / new_size[0]
+    y_scale = old_size[1] / new_size[1]
 
+    new_points = [(i[0] * x_scale, i[1] * y_scale) for i in points]
+    return new_points
 
 if __name__ == '__main__':
     screen.fill(white)
