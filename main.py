@@ -1,7 +1,12 @@
 import tkinter as tk
 from tkinter import filedialog
 import pygame, pygame.locals
-from colors import *
+import cv2
+import numpy as np
+
+black = (0,0,0)
+white = (255,255,255)
+blue = (0,0,255)
 
 #tkinter setup for file dialog
 root = tk.Tk()
@@ -31,12 +36,34 @@ def draw_lines(points, closed=False):
     if len(points) < 2: return
     pygame.draw.lines(screen, blue, closed, points)
 
-def shift(image, points):
-    pass
+def shift(img, points):
+    xs = [int(i[0]) for i in points]
+    ys = [int(i[1]) for i in points]
+
+    x_size = max(xs) - min(xs)
+    y_size = max(ys) - min(ys)
+
+    print(x_size, y_size)
+
+    old_points = np.float32(points)
+    new_points = np.float32([[0,0], [x_size, 0], [x_size, y_size], [0, y_size]])
+
+    matrix = cv2.getPerspectiveTransform(old_points, new_points)
+    result = cv2.warpPerspective(img, matrix, (x_size, y_size))
+
+    cv2.imshow('image', result)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+    save_path = filedialog.asksaveasfilename(filetypes=[("jpegs","*.jpg")])
+    if save_path != "":
+        if ".jpg" not in save_path:
+            save_path += ".jpg"
+        cv2.imwrite(save_path, result)
 
 def scale_points(points, old_size, new_size):
-    x_scale = old_size[0] / new_size[0]
-    y_scale = old_size[1] / new_size[1]
+    x_scale = new_size[0] / old_size[0]
+    y_scale = new_size[1] / old_size[1]
 
     new_points = [(i[0] * x_scale, i[1] * y_scale) for i in points]
     return new_points
@@ -48,6 +75,7 @@ if __name__ == '__main__':
     file_path = filedialog.askopenfilename(filetypes=[("jpegs","*.jpg"), ("pngs","*.png"), ("All Files", "*.*")])
     if file_path != "":
         image = pygame.image.load(file_path)
+        cvimage = cv2.imread(file_path)
         fit_image(image)
     else:
         pygame.quit()
@@ -69,10 +97,19 @@ if __name__ == '__main__':
                     points = []
                 pos = pygame.mouse.get_pos()
                 points.append(pos)
+            if event.type == pygame.KEYDOWN:
+                keys = pygame.key.get_pressed()
+                if keys[pygame.K_RETURN] and len(points) == 4:
+                    s_points = scale_points(points, SIZE, image.get_size())
+                    shift(cvimage, s_points)
+                elif keys[pygame.K_ESCAPE]:
+                    points = []
 
         fit_image(image)
         draw_dots(points)
-        if len(points) < 4:
+        if len(points) < 3:
             draw_lines(points + [pygame.mouse.get_pos()])
+        elif len(points) == 3:
+            draw_lines(points + [pygame.mouse.get_pos()], True)
         else:
             draw_lines(points, True)
