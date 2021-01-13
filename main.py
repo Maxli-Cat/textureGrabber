@@ -3,6 +3,8 @@ from tkinter import filedialog
 import pygame, pygame.locals
 import cv2
 import numpy as np
+from sys import exit
+
 
 black = (0,0,0)
 white = (255,255,255)
@@ -37,6 +39,13 @@ def draw_lines(points, closed=False):
     pygame.draw.lines(screen, blue, closed, points)
 
 def shift(img, points):
+    if points[1][1] > points[3][1]:
+        points = [points[0], points[3], points[2], points[1]]
+
+    if points[0][1] > points[2][1]:
+        points = [points[2], points[1], points[0], points[3]]
+
+
     xs = [int(i[0]) for i in points]
     ys = [int(i[1]) for i in points]
 
@@ -55,7 +64,7 @@ def shift(img, points):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-    save_path = filedialog.asksaveasfilename(filetypes=[("jpegs","*.jpg")])
+    save_path = filedialog.asksaveasfilename(filetypes=[("jpgs","*.jpg")])
     if save_path != "":
         if ".jpg" not in save_path:
             save_path += ".jpg"

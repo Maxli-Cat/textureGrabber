@@ -1,0 +1,7 @@
+To use:
+
+Open image to pull from
+Draw a box around the area of interest. Hit esc to start over, or hit enter to process
+A window will pop up with a preview of the texture.
+Close it, and a save dialog will open. Enter a filename to save, or hit cancel to disgard
+Either draw another box to get another texture, or hit the X to close
